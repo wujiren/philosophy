@@ -75,14 +75,18 @@ if __name__ == "__main__":
                 os.path.join(base_dir, idx, file)
             )
     for file_name, file_path_list in file_path_dict.items():
-        with open(os.path.join(article_dir, file_name)) as f:
-            content = f.read()
-        file_path_list.sort()
-        proposose_list = []
-        for file_path in file_path_list:
-            with open(file_path) as f:
-                proposose_list.append(f.read())
-        prompt = f"""
+        save_path = os.path.join(save_dir, file_name)
+        if os.path.exists(save_path):
+            continue
+        try:
+            with open(os.path.join(article_dir, file_name)) as f:
+                content = f.read()
+            file_path_list.sort()
+            proposose_list = []
+            for file_path in file_path_list:
+                with open(file_path) as f:
+                    proposose_list.append(f.read())
+            prompt = f"""
 ## 原文：
 ```
 {content}
@@ -109,6 +113,9 @@ if __name__ == "__main__":
 {proposose_list[4]}
 ```
 """
-        response = get_core_idea_card(prompt)
-        with open(os.path.join(save_dir, file_name), "w") as f:
-            f.write(response)
+            response = get_core_idea_card(prompt)
+            with open(save_path, "w") as f:
+                f.write(response)
+        except Exception as e:
+            print(f"Error: {e}")
+            continue
