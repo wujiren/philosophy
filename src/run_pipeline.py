@@ -74,15 +74,12 @@ def run_pipeline(
                 for m_content in cleaned_motifs_list:
                     t_match = re.search(r"###\s*(.*?)(?:\n|\Z)", m_content)
                     full_title = t_match.group(1).strip() if t_match else "未命名母题"
-                    sep = ":" if ":" in full_title else ":"
-                    if sep in full_title:
-                        m_id, m_title = full_title.split(sep, 1)
-                    else:
-                        m_id, m_title = "母题", full_title
+                    
+                    # 移除类似 "母题一：" 的前缀
+                    m_title = re.sub(r"^(母题[一二三四五六七八九十\d]+)[：:]\s*", "", full_title)
 
                     idea["motifs"].append(
                         {
-                            "id": m_id.strip(),
                             "title": m_title.strip(),
                             "motif": m_content.strip(),
                         }

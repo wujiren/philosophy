@@ -100,11 +100,9 @@ def parse_core_ideas_response(
                 f"- 《{metadata['book']}》 ({metadata['author']}) : {metadata['chapter']}"
             )
         idea_dict: CoreIdea = {
-            "id": idea_id,
             "title": title,
             "core_idea": "\n".join(output_lines).strip() + "\n",
             "motifs": [],
-            "final_summary": None,
         }
         core_ideas.append(idea_dict)
 
