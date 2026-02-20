@@ -7,7 +7,7 @@ import dotenv
 dotenv.load_dotenv()
 
 
-def get_core_idea_card(content, article_content):
+def get_essay_motifs(content, article_content):
     client = OpenAI(
         api_key=os.environ.get("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com"
     )
@@ -128,9 +128,7 @@ def extract_motif_content(response):
                 reconstructed.append(f"- **{field}：** （未提取到内容）")
         # 使用 \n\n 连接确保字段间有空行
         valid_motifs.append("\n\n".join(reconstructed))
-    if not valid_motifs:
-        return None
-    return "\n\n".join(valid_motifs)
+    return valid_motifs
 
 
 if __name__ == "__main__":
@@ -179,9 +177,8 @@ if __name__ == "__main__":
             print(f"注意：文件 {file_name} 未能解析出参考资料")
 
         print(f"正在处理: {file_name}...")
-        response = get_core_idea_card(clean_content, article_content)
-        final_response = extract_motif_content(response)
-
+        response = get_essay_motifs(clean_content, article_content)
+        final_response = "\n\n".join(extract_motif_content(response))
         save_path = os.path.join(save_dir, file_name)
         with open(save_path, "w", encoding="utf-8") as f:
             f.write(final_response)
