@@ -1,1 +1,1 @@
-from .tencent import process
+from .tencent import process, VoiceType

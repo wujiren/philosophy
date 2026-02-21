@@ -6,6 +6,7 @@ from .common.log import logger
 from .common.utils import is_python3
 import os
 import dotenv
+from typing import List, TypedDict, Optional
 
 dotenv.load_dotenv()
 
@@ -13,10 +14,12 @@ APPID = os.environ.get("TENCENT_APP_ID")
 SECRET_ID = os.environ.get("TENCENT_SECRET_ID")
 SECRET_KEY = os.environ.get("TENCENT_SECRET_KEY")
 
-VOICETYPE = 101013  # 音色类型
-CODEC = "mp3"  # 音频格式：pcm/mp3
-SAMPLE_RATE = 16000  # 音频采样率：8000/16000
-ENABLE_SUBTITLE = False
+
+class VoiceType(TypedDict):
+    VOICETYPE: int
+    CODEC: str
+    SAMPLE_RATE: int
+    ENABLE_SUBTITLE: bool
 
 
 class MySpeechSynthesisListener(
@@ -69,7 +72,7 @@ class MySpeechSynthesisListener(
             wav_fp.writeframes(self.audio_data)
             wav_fp.close()
         elif self.codec == "mp3":
-            fp = open(self.audio_file, "wb")
+            fp = open(self.audio_file + ".mp3", "wb")
             fp.write(self.audio_data)
             fp.close()
         else:
@@ -144,8 +147,10 @@ class MySpeechSynthesisListener(
         err_msg = response["message"]
 
 
-def process(texts: list, output_dir: str, output_file_prefix: str):
-    listener = MySpeechSynthesisListener(CODEC, SAMPLE_RATE)
+def process(
+    texts: list, output_dir: str, output_file_prefix: str, voice_type: VoiceType
+):
+    listener = MySpeechSynthesisListener(voice_type["CODEC"], voice_type["SAMPLE_RATE"])
     os.makedirs(output_dir, exist_ok=True)
     listener.set_audio_file(os.path.join(output_dir, output_file_prefix))
 
@@ -153,10 +158,10 @@ def process(texts: list, output_dir: str, output_file_prefix: str):
     synthesizer = flowing_speech_synthesizer.FlowingSpeechSynthesizer(
         APPID, credential_var, listener
     )
-    synthesizer.set_voice_type(VOICETYPE)
-    synthesizer.set_codec(CODEC)
-    synthesizer.set_sample_rate(SAMPLE_RATE)
-    synthesizer.set_enable_subtitle(ENABLE_SUBTITLE)
+    synthesizer.set_voice_type(voice_type["VOICETYPE"])
+    synthesizer.set_codec(voice_type["CODEC"])
+    synthesizer.set_sample_rate(voice_type["SAMPLE_RATE"])
+    synthesizer.set_enable_subtitle(voice_type["ENABLE_SUBTITLE"])
 
     synthesizer.start()
     ready = synthesizer.wait_ready(5000)
